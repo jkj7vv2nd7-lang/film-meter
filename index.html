@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1a120b">
+<title>FILM METER No.8 — 露出計 × 距離計</title>
+<style>
+  :root{
+    --leather:#1a120b;
+    --leather2:#241811;
+    --cream:#f5ead1;
+    --cream-dim:#d8c9a3;
+    --brass:#c9a86a;
+    --brass-hi:#eed9a4;
+    --brass-lo:#7a5f2e;
+    --red:#a83226;
+    --green:#4a7c59;
+    --ink:#2b2118;
+    --needle:#b02020;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:#0d0906;color:var(--cream);
+    font-family:Georgia,"Hiragino Mincho ProN","Yu Mincho",YuMincho,serif;
+    min-height:100dvh;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #3a2718 0%, transparent 60%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,.015) 0 2px, transparent 2px 6px),
+      repeating-linear-gradient(-45deg, rgba(0,0,0,.25) 0 3px, transparent 3px 7px),
+      linear-gradient(180deg,#241811,#120c07);
+    display:flex;justify-content:center;
+  }
+  .phone{width:100%;max-width:480px;min-height:100dvh;display:flex;flex-direction:column;
+    border-left:1px solid #000;border-right:1px solid #000;
+    box-shadow:0 0 60px rgba(0,0,0,.8), inset 0 0 0 1px rgba(201,168,106,.25);}
+
+  /* ===== film sprocket top ===== */
+  .sprocket{background:#0a0705;border-bottom:2px solid var(--brass-lo);
+    display:flex;justify-content:space-between;padding:7px 10px;gap:6px;}
+  .sprocket span{width:22px;height:14px;border-radius:3px;background:#e8dcc0;opacity:.85;
+    box-shadow:inset 0 -2px 3px rgba(0,0,0,.4);}
+  .brandplate{
+    margin:12px 14px 0;border-radius:12px;padding:12px 14px 10px;position:relative;
+    background:linear-gradient(180deg,#e8d5a8,#c9a86a 40%,#8f713c 70%,#c9a86a);
+    color:#2b1f0e;box-shadow:0 4px 14px rgba(0,0,0,.6), inset 0 1px 0 #fff8;
+    border:1px solid #5c4a24;
+  }
+  .brandplate h1{margin:0;font-size:19px;letter-spacing:.14em;font-weight:700}
+  .brandplate h1 small{font-size:11px;letter-spacing:.28em;display:block;font-weight:400}
+  .brandplate .serial{position:absolute;right:12px;top:10px;text-align:right;font-size:10px;line-height:1.5;opacity:.8}
+  .brandplate .memo{margin-top:8px;display:flex;gap:8px;align-items:center;
+    background:#1a120b;color:var(--cream);border-radius:8px;padding:8px 10px;
+    border:1px inset #00000088;}
+  .brandplate .memo label{font-size:11px;letter-spacing:.15em;white-space:nowrap}
+  .brandplate select{flex:1;background:#f5ead1;color:#2b2118;border-radius:6px;
+    font-family:inherit;font-size:14px;padding:6px;border:1px solid #7a5f2e;}
+
+  /* ===== mode dial tabs ===== */
+  .modedial{display:flex;margin:12px 14px 0;background:#0f0a06;border-radius:999px;
+    padding:4px;border:1px solid var(--brass-lo);box-shadow:inset 0 2px 8px #000;}
+  .modedial button{flex:1;border:0;border-radius:999px;padding:11px 0;font-family:inherit;
+    font-size:14px;letter-spacing:.2em;background:transparent;color:var(--cream-dim);cursor:pointer}
+  .modedial button.active{background:linear-gradient(180deg,var(--brass-hi),var(--brass) 60%,#9a7c3f);
+    color:#241a08;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.6), inset 0 1px 0 #fff;}
+
+  .body{padding:12px 14px 90px;display:flex;flex-direction:column;gap:12px}
+  .panel{background:linear-gradient(180deg,#f7efda,#e9d9b4);
+    color:var(--ink);border-radius:14px;padding:14px;
+    border:1px solid #6b562f;box-shadow:0 6px 18px rgba(0,0,0,.55), inset 0 1px 0 #fff;
+    position:relative;overflow:hidden;}
+  .panel::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.06;
+    background:repeating-linear-gradient(0deg,transparent 0 3px,#000 3px 4px);}
+  .panel h2{margin:0 0 8px;font-size:12px;letter-spacing:.3em;color:#6b562f;font-weight:700}
+  .panel h2::after{content:"";display:block;height:1px;margin-top:6px;
+    background:linear-gradient(90deg,#6b562f,transparent);}
+
+  /* viewfinder */
+  .finder{background:#0d0b08;border-radius:10px;overflow:hidden;position:relative;
+    border:2px solid #3a2c17;box-shadow:inset 0 0 30px #000;}
+  .finder video{width:100%;height:190px;object-fit:cover;display:block;background:#000}
+  .finder .spot{position:absolute;left:50%;top:50%;width:110px;height:110px;
+    transform:translate(-50%,-50%);border:1.5px dashed rgba(245,234,209,.9);
+    border-radius:50%;pointer-events:none;}
+  .finder .spot::after{content:"+";position:absolute;left:50%;top:50%;
+    transform:translate(-50%,-55%);color:#f5ead1aa;font-size:22px}
+  .finder .novideo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:#f5ead188;font-size:13px;letter-spacing:.1em;text-align:center;padding:20px;line-height:2}
+  .meter-row{display:flex;gap:8px;margin-top:10px}
+  .btn{flex:1;border-radius:10px;border:1px solid #5c4a24;padding:12px 8px;cursor:pointer;
+    font-family:inherit;font-size:14px;letter-spacing:.08em;font-weight:700;
+    background:linear-gradient(180deg,#3a2c17,#241811);color:var(--cream);
+    box-shadow:0 3px 0 #0a0603, 0 4px 10px rgba(0,0,0,.4);}
+  .btn:active{transform:translateY(2px);box-shadow:0 1px 0 #0a0603}
+  .btn.brass{background:linear-gradient(180deg,#f0dcae,#c9a86a 55%,#8f713c);color:#2b1f0e}
+  .btn.red{background:linear-gradient(180deg,#c14a3c,#7c231a);color:#ffe}
+  .btn.ghost{background:transparent;color:var(--ink);box-shadow:none;border:1px dashed #8a744a}
+  .btn.small{padding:8px 6px;font-size:12px}
+
+  /* needle meter */
+  .needlebox{margin-top:10px;background:#14100b;border-radius:10px;padding:10px 12px 6px;
+    border:1px solid #3a2c17;color:var(--cream)}
+  .needle-scale{position:relative;height:110px;overflow:hidden}
+  .needle-ticks{position:absolute;left:0;right:0;bottom:0;height:90px}
+  .needle{position:absolute;left:50%;bottom:8px;width:3px;height:78px;background:var(--needle);
+    transform-origin:50% 100%;transform:rotate(0deg);transition:transform .35s cubic-bezier(.2,1.4,.4,1);
+    box-shadow:0 0 6px #ff000088;z-index:2}
+  .needle-pin{position:absolute;left:50%;bottom:0;width:18px;height:18px;border-radius:50%;
+    transform:translateX(-50%);background:radial-gradient(circle at 35% 35%,#eed9a4,#7a5f2e);
+    border:1px solid #000;z-index:3}
+  .ev-read{display:flex;justify-content:space-between;align-items:baseline;margin-top:2px}
+  .ev-read b{font-size:30px;font-family:"Courier New",monospace;letter-spacing:.02em}
+  .ev-read span{font-size:12px;opacity:.8}
+  .judge{margin-top:6px;text-align:center;font-size:15px;letter-spacing:.2em;padding:7px;border-radius:8px;
+    background:#00000055;border:1px solid #ffffff22}
+  .judge.ok{background:#2e5b3a;color:#eaffea}
+  .judge.over{background:#7c231a;color:#ffe}
+  .judge.under{background:#1d3a6b;color:#dbe9ff}
+
+  /* dial rows */
+  .dialabel{display:flex;justify-content:space-between;align-items:baseline;margin:12px 0 4px}
+  .dialabel b{font-size:12px;letter-spacing:.2em;color:#6b562f}
+  .dialabel output{font-family:"Courier New",monospace;font-weight:700;font-size:17px;
+    background:#241811;color:#f5ead1;padding:2px 10px;border-radius:6px;border:1px solid #000}
+  .dial{display:flex;gap:6px;overflow-x:auto;padding:6px 2px 8px;scrollbar-width:none}
+  .dial::-webkit-scrollbar{display:none}
+  .dial button{flex:0 0 auto;min-width:62px;padding:10px 6px;border-radius:9px;cursor:pointer;
+    border:1px solid #7a5f2e;background:#fffdf4;color:#2b2118;font-family:"Courier New",monospace;
+    font-size:14px;font-weight:700;box-shadow:0 2px 0 #7a5f2e}
+  .dial button.sel{background:linear-gradient(180deg,#3a2c17,#1a120b);color:#eed9a4;
+    border-color:#241811;box-shadow:0 2px 0 #000, inset 0 0 0 1px #c9a86a}
+  .seg{display:flex;background:#d9c89e;border-radius:999px;padding:3px;border:1px inset #8a744a88}
+  .seg button{flex:1;border:0;background:transparent;padding:8px;border-radius:999px;
+    font-family:inherit;font-size:12px;letter-spacing:.1em;cursor:pointer;color:#5c4a24}
+  .seg button.on{background:#241811;color:#eed9a4;font-weight:700}
+
+  input[type=range]{width:100%;accent-color:#7c5f2a;height:34px}
+  .kv{display:flex;justify-content:space-between;font-size:13px;padding:5px 2px;border-bottom:1px dotted #8a744a88}
+  .kv b{font-family:"Courier New",monospace;font-size:14px}
+  .combo{margin-top:8px;display:flex;flex-direction:column;gap:6px;max-height:190px;overflow:auto}
+  .combo div{display:flex;justify-content:space-between;background:#fffdf4;border:1px solid #c9b98a;
+    border-radius:8px;padding:8px 10px;font-family:"Courier New",monospace;font-size:13px}
+  .combo div.rec{border:2px solid var(--red);background:#fff3e8}
+  .hint{font-size:12px;line-height:1.9;color:#5c4a24;margin-top:8px}
+  .hint code{background:#241811;color:#eed9a4;padding:1px 6px;border-radius:4px;font-size:12px}
+
+  /* rangefinder */
+  .focusring{margin:6px 0 2px;background:#14100b;border-radius:12px;padding:12px;
+    border:1px solid #3a2c17;color:var(--cream)}
+  .focusring .dist{font-family:"Courier New",monospace;text-align:center}
+  .focusring .dist b{font-size:34px}
+  .focusring .dist span{font-size:12px;opacity:.75}
+  .lensbar{position:relative;height:44px;margin-top:10px;border-radius:6px;overflow:hidden;
+    background:linear-gradient(90deg,#4a7c59 0 var(--n1),#1a1a1a var(--n1) var(--n2),#7c231a var(--n2) 100%);
+    border:1px solid #000}
+  .lensbar::after{content:"NEAR ◀ ▶ FAR";position:absolute;inset:0;display:flex;align-items:center;
+    justify-content:center;font-size:10px;letter-spacing:.3em;color:#fff;text-shadow:0 1px 2px #000}
+  .subtabs{display:flex;gap:6px;margin-top:10px}
+  .subtabs button{flex:1;border-radius:8px;border:1px solid #7a5f2e;background:#efe2c2;
+    padding:9px 4px;font-family:inherit;font-size:12px;cursor:pointer;color:#5c4a24}
+  .subtabs button.on{background:#241811;color:#eed9a4;font-weight:700}
+  .tool{margin-top:10px;background:#fffdf4;border:1px solid #c9b98a;border-radius:10px;padding:10px}
+  .tool p{margin:6px 0;font-size:13px;line-height:1.8}
+  .tool .big{font-family:"Courier New",monospace;font-size:24px;font-weight:700;text-align:center;
+    background:#241811;color:#eed9a4;border-radius:8px;padding:8px;margin:8px 0}
+  select, input[type=number]{font-family:inherit;font-size:15px;padding:8px;border-radius:8px;
+    border:1px solid #7a5f2e;background:#fffdf4;color:#2b2118;width:100%}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .hidden{display:none !important}
+
+  .footbar{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,transparent,#0d0906 30%);}
+  .footbar div{width:100%;max-width:452px;background:#0f0a06;border:1px solid var(--brass-lo);
+    border-radius:12px;padding:8px 12px;font-size:11px;color:var(--cream-dim);
+    display:flex;justify-content:space-between;letter-spacing:.08em}
+  canvas#luxCanvas{display:none}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <div class="sprocket" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <div class="brandplate">
+    <h1>FILM METER No.8<small>EXPOSURE × RANGEFINDER</small></h1>
+    <div class="serial">ASA / DIN<br>JAPAN OPT.</div>
+    <div class="memo">
+      <label>🎞 FILM</label>
+      <select id="filmStock">
+        <option value="100">Kodak Gold 100 — ISO 100</option>
+        <option value="200">Fuji 100 Premium → 実効 200</option>
+        <option value="400" selected>Tri-X / HP5+ — ISO 400</option>
+        <option value="800">Portra 800 — ISO 800</option>
+        <option value="50">Velvia 50 — ISO 50</option>
+        <option value="160">Portra 160 — ISO 160</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="modedial">
+    <button id="tabExp" class="active">◉ 露出計</button>
+    <button id="tabRng">◎ 距離計</button>
+  </div>
+
+  <div class="body">
+    <!-- ============ EXPOSURE ============ -->
+    <section id="viewExp">
+      <div class="panel">
+        <h2>① SPOT METER — スポット測光</h2>
+        <div class="finder">
+          <video id="video" playsinline muted></video>
+          <div class="spot"></div>
+          <div class="novideo" id="noVideo">— LENS CAP —<br>「測光開始」を押すと<br>スマホカメラで明るさを測ります</div>
+        </div>
+        <div class="meter-row">
+          <button class="btn brass" id="btnMeter">◉ 測光開始</button>
+          <button class="btn" id="btnAmbient">☀ 照度センサー</button>
+        </div>
+        <div class="meter-row">
+          <button class="btn ghost small" id="btnSunny">☀ 晴れ16 / ☁8 / 室内4</button>
+        </div>
+
+        <div class="needlebox">
+          <div class="needle-scale" id="needleScale">
+            <svg class="needle-ticks" viewBox="0 0 300 90" width="100%" height="90" id="tickSvg"></svg>
+            <div class="needle" id="needle"></div>
+            <div class="needle-pin"></div>
+          </div>
+          <div class="ev-read"><span>METERED EV (ISO100)</span><b id="evVal">--.-</b></div>
+          <div class="ev-read"><span>TARGET EV (ISO <em id="isoEcho">400</em>)</span><b id="evTarget">--.-</b></div>
+          <div class="judge" id="judge">— まず測光してください —</div>
+        </div>
+        <canvas id="luxCanvas" width="64" height="64"></canvas>
+      </div>
+
+      <div class="panel">
+        <h2>② FILM SPEED — 感度ダイヤル</h2>
+        <div class="dial" id="isoDial"></div>
+        <div class="dialabel"><b>露出補正 EV ±</b><output id="ecOut">+0.0</output></div>
+        <input type="range" id="ecSlider" min="-2" max="2" step="0.5" value="0">
+        <div class="dialabel"><b>校正 CALIB.</b><output id="calOut">+0.0</output></div>
+        <input type="range" id="calSlider" min="-3" max="3" step="0.5" value="0">
+        <p class="hint">カメラ測光は機種で明るさがずれるので、最初だけ <code>晴天の屋外=EV15</code> に合うようCALIB.で合わせてください。</p>
+      </div>
+
+      <div class="panel">
+        <h2>③ APERTURE / SHUTTER — 絞り・シャッター</h2>
+        <div class="seg" id="modeSeg">
+          <button data-m="A" class="on">絞り優先 A</button>
+          <button data-m="S">シャッター優先 S</button>
+          <button data-m="M">マニュアル M</button>
+        </div>
+        <div class="dialabel"><b>絞り F</b><output id="avOut">F8</output></div>
+        <div class="dial" id="avDial"></div>
+        <div class="dialabel"><b>シャッター SS</b><output id="tvOut">1/125</output></div>
+        <div class="dial" id="tvDial"></div>
+        <div class="kv"><span>現在の設定EV</span><b id="setEv">--</b></div>
+        <div class="kv"><span>露出差</span><b id="diffEv">--</b></div>
+        <div class="kv"><span>おすすめ</span><b id="suggest">--</b></div>
+        <h2 style="margin-top:12px">等価露出コンビネーション</h2>
+        <div class="combo" id="combo"></div>
+        <p class="hint">フィルムは <code>1段オーバー</code> 気味が安全（ネガ）。リバーサルはアンダー厳禁・ジャストで。長時間露出(1秒〜)は相反則不軌で +1段ほど多めに。</p>
+      </div>
+    </section>
+
+    <!-- ============ RANGEFINDER ============ -->
+    <section id="viewRng" class="hidden">
+      <div class="panel">
+        <h2>① FOCUS RING — ピント合わせ</h2>
+        <div class="grid2">
+          <div><label style="font-size:12px">フィルム判</label>
+            <select id="filmFmt">
+              <option value="0.033" selected>35mm判 (CoC 0.033)</option>
+              <option value="0.055">ブローニー6×6 (0.055)</option>
+              <option value="0.06">ブローニー6×7 (0.06)</option>
+              <option value="0.02">ハーフ判 (0.02)</option>
+            </select></div>
+          <div><label style="font-size:12px">レンズ焦点距離</label>
+            <select id="focalSel">
+              <option>28</option><option>35</option>
+              <option selected>50</option><option>85</option>
+              <option>105</option><option>135</option>
+            </select></div>
+        </div>
+        <div class="dialabel"><b>レンズ絞り</b><output id="rngAvOut">F8</output></div>
+        <div class="dial" id="rngAvDial"></div>
+        <div class="focusring">
+          <div class="dist"><b id="focusVal">3.0</b> <span>m (<em id="focusFt">9.8</em> ft)</span></div>
+          <input type="range" id="focusSlider" min="0" max="1000" value="620">
+          <div style="display:flex;justify-content:space-between;font-size:10px;opacity:.7">
+            <span>0.45m</span><span>1m</span><span>3m</span><span>10m</span><span>∞</span>
+          </div>
+          <div class="lensbar" id="lensBar"></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:6px">
+            <span>NEAR <b id="nearVal" style="font-family:monospace">--</b></span>
+            <span>H= <b id="hyperVal" style="font-family:monospace">--</b></span>
+            <span>FAR <b id="farVal" style="font-family:monospace">--</b></span>
+          </div>
+        </div>
+        <div class="kv"><span>被写界深度</span><b id="dofVal">--</b></div>
+        <div class="kv"><span>判定</span><b id="dofJudge">--</b></div>
+      </div>
+
+      <div class="panel">
+        <h2>② 距離の測り方 — 二刀流</h2>
+        <div class="subtabs">
+          <button id="subAngle" class="on">📐 高さ×俯角</button>
+          <button id="subSize">🧍 大きさから</button>
+        </div>
+
+        <div class="tool" id="toolAngle">
+          <p>目線の高さから、スマホを被写体の足元へ向けて伏せ角で測ります。<br>
+          <code>距離 = 目線高 ÷ tan(俯角)</code>。二重露光のスナップに。</p>
+          <div class="grid2">
+            <div><label style="font-size:12px">目線の高さ cm</label>
+              <input type="number" id="eyeH" value="150" min="50" max="250"></div>
+            <div><label style="font-size:12px">俯角 ° (下向き+)</label>
+              <input type="number" id="pitchManual" value="15" min="1" max="89" step="0.5"></div>
+          </div>
+          <div class="meter-row">
+            <button class="btn brass" id="btnTilt">📐 傾きセンサーON</button>
+            <button class="btn" id="btnLock">LOCKして採用</button>
+          </div>
+          <p>センサー俯角: <b id="pitchLive" style="font-family:monospace">--°</b></p>
+          <div class="big" id="angleDist">-- m</div>
+          <button class="btn brass" id="btnApplyAngle" style="width:100%">⇪ この距離をフォーカスに送る</button>
+        </div>
+
+        <div class="tool hidden" id="toolSize">
+          <p>写る大きさから逆算します。人物なら身長170cm、車なら全高150cmなど。
+          <code>距離 = 実寸 ÷ 2 ÷ tan(画角×占有率÷2)</code></p>
+          <label style="font-size:12px">被写体の実寸</label>
+          <select id="targetSel">
+            <option value="170">人物 全身 170cm</option>
+            <option value="90">人物 ウエストアップ 90cm</option>
+            <option value="24">人物 顔 24cm</option>
+            <option value="150">乗用車の車高 150cm</option>
+            <option value="200">ドア高さ 200cm</option>
+            <option value="100">看板・ポスター 100cm</option>
+          </select>
+          <div class="dialabel"><b>画面の占有率</b><output id="fillOut">40%</output></div>
+          <input type="range" id="fillSlider" min="5" max="100" value="40">
+          <div class="dialabel"><b>スマホ画角(垂直)</b><output id="fovOut">60°</output></div>
+          <input type="range" id="fovSlider" min="40" max="80" value="60">
+          <div class="big" id="sizeDist">-- m</div>
+          <button class="btn brass" id="btnApplySize" style="width:100%">⇪ この距離をフォーカスに送る</button>
+        </div>
+        <p class="hint">古いカメラの目測撮影のコツ: <code>3mに置いてF8・50mm</code> なら 2〜5.5m くらい全部写る。迷ったら小さめに絞って前ピン気味に。</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="footbar"><div><span>◉ SEIKO-SHA style</span><span id="clock">--:--</span><span>ASA ♥ JAPAN</span></div></div>
+</div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const log2 = x => Math.log(x)/Math.LN2;
+
+/* ---------- constants ---------- */
+const ISOS=[12,25,50,100,200,400,800,1600,3200];
+const AVS=[1.4,2,2.8,4,5.6,8,11,16,22];
+const TVS=[{l:"30",v:30},{l:"15",v:15},{l:"8",v:8},{l:"4",v:4},{l:"2",v:2},{l:"1",v:1},
+ {l:"1/2",v:1/2},{l:"1/4",v:1/4},{l:"1/8",v:1/8},{l:"1/15",v:1/15},{l:"1/30",v:1/30},
+ {l:"1/60",v:1/60},{l:"1/125",v:1/125},{l:"1/250",v:1/250},{l:"1/500",v:1/500},
+ {l:"1/1000",v:1/1000},{l:"1/2000",v:1/2000},{l:"1/4000",v:1/4000}];
+
+/* ---------- state ---------- */
+let S={iso:400,av:8,tvIdx:11,mode:"A",ev100:null,calib:0,ec:0,src:"-",
+       f:50,coc:0.033,rngAv:8,focus:3.0};
+
+/* ---------- tabs ---------- */
+$("tabExp").onclick=()=>{setTab(true)}; $("tabRng").onclick=()=>{setTab(false)};
+function setTab(exp){$("tabExp").classList.toggle("active",exp);$("tabRng").classList.toggle("active",!exp);
+ $("viewExp").classList.toggle("hidden",!exp);$("viewRng").classList.toggle("hidden",exp);}
+
+/* ---------- dial builders ---------- */
+function buildDial(el,items,cur,fmt,onpick){
+  el.innerHTML="";items.forEach((it,i)=>{
+    const b=document.createElement("button");b.textContent=fmt(it,i);
+    if(it===cur||i===cur)b.classList.add("sel");
+    b.onclick=()=>{onpick(it,i);[...el.children].forEach(c=>c.classList.remove("sel"));b.classList.add("sel");
+      b.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"});};
+    el.appendChild(b);});
+}
+function refreshExpDials(){
+  buildDial($("isoDial"),ISOS,S.iso,v=>"ASA"+v,(v)=>{S.iso=v;$("isoEcho").textContent=v;syncFilm();calcExp();});
+  buildDial($("avDial"),AVS,S.av,v=>"F"+v,(v)=>{S.av=v;$("avOut").textContent="F"+v;calcExp();});
+  buildDial($("tvDial"),TVS,S.tvIdx,(o,i)=>o.l,(o,i)=>{S.tvIdx=i;$("tvOut").textContent=TVS[i].l;calcExp();});
+  buildDial($("rngAvDial"),AVS,S.rngAv,v=>"F"+v,(v)=>{S.rngAv=v;$("rngAvOut").textContent="F"+v;calcDof();});
+}
+function syncFilm(){const fs=$("filmStock");[...fs.options].forEach(o=>{if(+o.value===S.iso)fs.selectedIndex=[...fs.options].indexOf(o);});}
+$("filmStock").onchange=e=>{S.iso=+e.target.value;$("isoEcho").textContent=S.iso;refreshExpDials();calcExp();};
+$("modeSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  $("modeSeg").querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+  S.mode=b.dataset.m;calcExp();});
+$("ecSlider").oninput=e=>{S.ec=+e.target.value;$("ecOut").textContent=(S.ec>=0?"+":"")+S.ec.toFixed(1);calcExp();};
+$("calSlider").oninput=e=>{S.calib=+e.target.value;$("calOut").textContent=(S.calib>=0?"+":"")+S.calib.toFixed(1);calcExp();};
+
+/* ---------- needle ticks ---------- */
+(function(){const svg=$("tickSvg");let s="";
+  for(let e=-3;e<=3;e++){const a=(-e*25); // needle rotate deg
+    const x1=150+Math.sin(a*Math.PI/180)*52, y1=88-Math.cos(a*Math.PI/180)*52;
+    const x2=150+Math.sin(a*Math.PI/180)*72, y2=88-Math.cos(a*Math.PI/180)*72;
+    const col=e===0?"#4a7c59":(Math.abs(e)>=2?"#a83226":"#c9a86a");
+    s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${e===0?3:2}"/>`;
+    const tx=150+Math.sin(a*Math.PI/180)*84, ty=88-Math.cos(a*Math.PI/180)*84;
+    s+=`<text x="${tx}" y="${ty+4}" font-size="11" text-anchor="middle" fill="#f5ead1" font-family="monospace">${e>0?"+":""}${e}</text>`;}
+  svg.innerHTML=s;})();
+
+/* ---------- exposure calc ---------- */
+function evOfSetting(n,t){return log2((n*n)/t);}
+function nearestTvIdx(t){let bi=0,bd=1e9;TVS.forEach((o,i)=>{const d=Math.abs(log2(o.v/t));if(d<bd){bd=d;bi=i;}});return bi;}
+function nearestAv(v){let bi=AVS[0],bd=1e9;AVS.forEach(a=>{const d=Math.abs(log2(a/v));if(d<bd){bd=d;bi=a;}});return bi;}
+
+function calcExp(){
+  $("avOut").textContent="F"+S.av; $("tvOut").textContent=TVS[S.tvIdx].l;
+  if(S.ev100==null){
+    $("needle").style.transform="rotate(0deg)";
+    $("evVal").textContent="--.-";$("evTarget").textContent="--.-";
+    $("setEv").textContent="--";$("diffEv").textContent="--";
+    $("suggest").textContent="--";$("combo").innerHTML="<div><span>測光すると候補が出ます</span><span>---</span></div>";
+    $("judge").className="judge";$("judge").textContent="— まず測光してください —";return;
+  }
+  const ev100=S.ev100+S.calib;
+  const target=ev100+log2(S.iso/100)+S.ec; // 必要な設定EV
+  let setEv=evOfSetting(S.av,TVS[S.tvIdx].v);
+  // auto modes
+  if(S.mode==="A"){const tNeed=(S.av*S.av)/Math.pow(2,target);S.tvIdx=nearestTvIdx(tNeed);setEv=evOfSetting(S.av,TVS[S.tvIdx].v);}
+  if(S.mode==="S"){const nNeed=Math.sqrt(Math.pow(2,target)*TVS[S.tvIdx].v);S.av=nearestAv(nNeed);setEv=evOfSetting(S.av,TVS[S.tvIdx].v);}
+  const diff=setEv-target; // +ならオーバー
+  $("evVal").textContent=ev100.toFixed(1)+" ("+S.src+")";
+  $("evTarget").textContent=target.toFixed(1);
+  $("setEv").textContent="EV "+setEv.toFixed(1)+` (F${S.av}・${TVS[S.tvIdx].l})`;
+  const stops=Math.max(-3.5,Math.min(3.5,diff));
+  $("needle").style.transform=`rotate(${(stops*25).toFixed(1)}deg)`;
+  $("diffEv").textContent=(diff>=0?"+":"")+diff.toFixed(1)+"段";
+  const j=$("judge");
+  if(Math.abs(diff)<0.35){j.className="judge ok";j.textContent="◎ 適正露出 — そのまま撮ってよし";}
+  else if(diff>0){j.className="judge over";j.textContent=`○ ${diff.toFixed(1)}段オーバー — 絞るか速く`;
+    if(diff>=1)j.textContent=`✕ ${diff.toFixed(1)}段オーバーすぎ — 白トビ注意`; }
+  else{j.className="judge under";j.textContent=`● ${Math.abs(diff).toFixed(1)}段アンダー — 開けるか遅く`;
+    if(diff<=-1)j.textContent=`✕ ${Math.abs(diff).toFixed(1)}段アンダーすぎ — 黒ツブレ注意`;}
+  // suggestion text
+  if(S.mode==="A")$("suggest").textContent=`F${S.av} → SS ${TVS[S.tvIdx].l} に自動設定`;
+  else if(S.mode==="S")$("suggest").textContent=`SS ${TVS[S.tvIdx].l} → F${S.av} に自動設定`;
+  else $("suggest").textContent="M: 針が 0 を指すよう合わせる";
+  // refresh dials selection without rebuild loop
+  [...$("avDial").children].forEach(c=>c.classList.toggle("sel",c.textContent==="F"+S.av));
+  [...$("tvDial").children].forEach((c,i)=>c.classList.toggle("sel",i===S.tvIdx));
+  $("avOut").textContent="F"+S.av;$("tvOut").textContent=TVS[S.tvIdx].l;
+  // combos
+  let html="";
+  AVS.forEach(a=>{const t=(a*a)/Math.pow(2,target);const ti=nearestTvIdx(t);
+    const rec=(a===S.av&&ti===S.tvIdx)?' class="rec"':"";
+    const tv=TVS[ti]; const tvLabel=tv.v>=1?tv.l+"秒":"1/"+Math.round(1/tv.v);
+    html+=`<div${rec}><span>F${a}</span><span>${tvLabel}</span><span>EV ${evOfSetting(a,tv.v).toFixed(1)}</span></div>`;});
+  $("combo").innerHTML=html;
+}
+
+/* ---------- camera metering ---------- */
+let stream=null,metering=false,rafId=null;
+$("btnMeter").onclick=async()=>{
+  if(metering){stopMeter();return;}
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"},audio:false});
+    const v=$("video");v.srcObject=stream;await v.play();
+    $("noVideo").style.display="none";metering=true;
+    $("btnMeter").textContent="■ 測光停止";$("btnMeter").classList.add("red");
+    loopMeter();
+  }catch(e){alert("カメラが使えませんでした: "+e.message+"\nHTTPSかlocalhostで開き、カメラ許可をONにしてください。");}
+};
+function stopMeter(){metering=false;cancelAnimationFrame(rafId);
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  $("btnMeter").textContent="◉ 測光開始";$("btnMeter").classList.remove("red");}
+function loopMeter(){
+  if(!metering)return;
+  const v=$("video"),c=$("luxCanvas"),ctx=c.getContext("2d");
+  if(v.readyState>=2&&v.videoWidth>0){
+    const w=64,h=64;ctx.drawImage(v,0,0,w,h);
+    const d=ctx.getImageData(w*0.3|0,h*0.3|0,w*0.4|0,h*0.4|0).data;
+    let sum=0,n=0;
+    for(let i=0;i<d.length;i+=4){const y=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];sum+=y;n++;}
+    const Y=sum/n;
+    S.ev100=2.2*log2(Math.max(Y,1))-3; S.src="CAM";
+    calcExp();
+  }
+  rafId=requestAnimationFrame(()=>setTimeout(loopMeter,400));
+}
+/* ambient light sensor */
+$("btnAmbient").onclick=async()=>{
+  try{
+    if(!("AmbientLightSensor" in window))throw new Error("この端末・ブラウザは照度センサー非対応です（Chrome Androidのみ対応）。カメラ測光か手動を使ってください。");
+    const s=new AmbientLightSensor();s.addEventListener("reading",()=>{
+      S.ev100=log2(s.illuminance/2.5);S.src="LUX "+Math.round(s.illuminance)+"lx";calcExp();});
+    s.start();alert("照度センサー開始。数値が針に反映されます。");
+  }catch(e){alert(e.message);}
+};
+/* sunny16 quick */
+$("btnSunny").onclick=()=>{
+  const c=prompt("シーンを選んでください:\n1 晴天・日向 (EV15)\n2 薄曇り (EV13)\n3 曇り (EV12)\n4 日陰 (EV11)\n5 室内・夜景 (EV6)","1");
+  const map={"1":15,"2":13,"3":12,"4":11,"5":6};
+  if(map[c]){S.ev100=map[c];S.src="SUNNY";calcExp();}
+};
+
+/* ---------- rangefinder ---------- */
+function sliderToDist(p){ // 0..1000 log map 0.45..inf
+  if(p>=1000)return Infinity;
+  const min=log2(0.45),max=log2(60);
+  return Math.pow(2,min+(max-min)*(p/1000));
+}
+function distToSlider(d){if(!isFinite(d))return 1000;
+  const min=log2(0.45),max=log2(60);
+  return Math.round(1000*(log2(Math.min(Math.max(d,0.45),60))-min)/(max-min));}
+function fmtD(d){return isFinite(d)?(d<10?d.toFixed(1):Math.round(d)+""):"∞";}
+
+$("focusSlider").oninput=e=>{S.focus=sliderToDist(+e.target.value);calcDof();};
+$("focalSel").onchange=e=>{S.f=+e.target.value;calcDof();};
+$("filmFmt").onchange=e=>{S.coc=+e.target.value;calcDof();};
+
+function calcDof(){
+  $("focusVal").textContent=fmtD(S.focus);
+  $("focusFt").textContent=isFinite(S.focus)?(S.focus*3.28084).toFixed(1):"∞";
+  $("rngAvOut").textContent="F"+S.rngAv;
+  const f=S.f,c=S.coc,N=S.rngAv,D=S.focus*1000;
+  const H=(f*f)/(N*c)+f; // mm
+  $("hyperVal").textContent=(H/1000).toFixed(1)+"m";
+  let near,far;
+  if(!isFinite(S.focus)){near=H/1000;far=Infinity;}
+  else{near=(H*D)/(H+D)/1000;far=D<H?(H*D)/(H-D)/1000:Infinity;}
+  $("nearVal").textContent=fmtD(near)+"m";$("farVal").textContent=fmtD(far)+"m";
+  const dof=isFinite(far)?(far-near):Infinity;
+  $("dofVal").textContent=isFinite(dof)?dof.toFixed(1)+" m":"∞（パンフォーカス）";
+  $("dofJudge").textContent=
+    S.focus>H/1000?"★ 過焦点 — ∞まで全部写る":
+    dof<1?"● 被写界浅め — ピントは慎重に":
+    dof<4?"○ スナップに丁度いい深さ":"◎ たっぷりパンフォーカス";
+  // bar: positions on log scale
+  const pos=d=>{if(!isFinite(d))return 100;const p=(log2(Math.min(Math.max(d,0.4),80))-log2(0.4))/(log2(80)-log2(0.4));return p*100;};
+  const n1=pos(near),n2=pos(isFinite(far)?far:80);
+  const fpos=isFinite(S.focus)?pos(S.focus):100;
+  $("lensBar").style.setProperty("--n1",n1+"%");$("lensBar").style.setProperty("--n2",n2+"%");
+}
+
+/* sub tools */
+$("subAngle").onclick=()=>{$("subAngle").classList.add("on");$("subSize").classList.remove("on");
+  $("toolAngle").classList.remove("hidden");$("toolSize").classList.add("hidden");};
+$("subSize").onclick=()=>{$("subSize").classList.add("on");$("subAngle").classList.remove("on");
+  $("toolSize").classList.remove("hidden");$("toolAngle").classList.add("hidden");};
+
+function calcAngle(){
+  const h=(+$("eyeH").value||150)/100, th=(+$("pitchManual").value||15)*Math.PI/180;
+  const d=h/Math.tan(Math.max(th,0.5*Math.PI/180));
+  $("angleDist").textContent=d.toFixed(1)+" m";
+  return d;
+}
+$("eyeH").oninput=calcAngle;$("pitchManual").oninput=calcAngle;
+
+let tiltOn=false;
+$("btnTilt").onclick=async()=>{
+  try{
+    if(typeof DeviceOrientationEvent!=="undefined"&&typeof DeviceOrientationEvent.requestPermission==="function"){
+      await DeviceOrientationEvent.requestPermission();}
+    if(tiltOn){window.removeEventListener("deviceorientation",tiltH);tiltOn=false;
+      $("btnTilt").textContent="📐 傾きセンサーON";return;}
+    window.addEventListener("deviceorientation",tiltH);tiltOn=true;
+    $("btnTilt").textContent="■ センサー停止";
+  }catch(e){alert("傾きセンサーが使えません: "+e.message);}
+};
+function tiltH(e){
+  if(e.beta==null)return;
+  // beta: 0=机に平置き / 90=縦持ちで垂直(水平方向を見る) / 0に近づくほど真下を向く
+  // 俯角 = 90 - beta の絶対値として扱う（1〜89°にクランプ）
+  let deg=Math.abs(90-Math.abs(e.beta||90));
+  deg=Math.max(1,Math.min(89,deg));
+  $("pitchLive").textContent=deg.toFixed(1)+"°";
+  $("pitchManual").value=deg.toFixed(1);calcAngle();
+}
+$("btnLock").onclick=()=>{if(tiltOn){window.removeEventListener("deviceorientation",tiltH);tiltOn=false;
+  $("btnTilt").textContent="📐 傾きセンサーON";}};
+$("btnApplyAngle").onclick=()=>{const d=calcAngle();S.focus=d;
+  $("focusSlider").value=distToSlider(d);calcDof();setTab(false);window.scrollTo({top:0,behavior:"smooth"});};
+
+function calcSize(){
+  const H=(+$("targetSel").value||170)/100;
+  const fill=(+$("fillSlider").value||40)/100;
+  const fov=(+$("fovSlider").value||60)*Math.PI/180;
+  const alpha=fill*fov;
+  const d=(H/2)/Math.tan(Math.max(alpha/2,0.001));
+  $("fillOut").textContent=$("fillSlider").value+"%";
+  $("fovOut").textContent=$("fovSlider").value+"°";
+  $("sizeDist").textContent=d.toFixed(1)+" m";
+  return d;
+}
+$("fillSlider").oninput=calcSize;$("fovSlider").oninput=calcSize;$("targetSel").onchange=calcSize;
+$("btnApplySize").onclick=()=>{const d=calcSize();S.focus=d;
+  $("focusSlider").value=distToSlider(d);calcDof();window.scrollTo({top:0,behavior:"smooth"});};
+
+/* clock */
+setInterval(()=>{const d=new Date();
+  $("clock").textContent=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");},1000);
+
+/* init */
+$("isoEcho").textContent=S.iso;
+refreshExpDials();calcExp();
+$("focusSlider").value=distToSlider(3.0);
+calcDof();calcAngle();calcSize();
+</script>
+</body>
+</html>
